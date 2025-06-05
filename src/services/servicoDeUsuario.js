@@ -5,16 +5,16 @@ const { Usuario } = require("../models/Usuario");
 const { HttpError } = require("../errors/HttpError");
 
 class ServicoDeUsuario {
-  buscarTodos() {
-    return RepositorioDeUsuario.buscarTodos();
+  async buscarTodos() {
+    return await RepositorioDeUsuario.buscarTodos();
   }
 
-  pegarPeloID(id) {
+  async pegarPeloID(id) {
     if (!id) {
       throw new HttpError(400, "O ID não foi informado");
     }
 
-    const usuario = RepositorioDeUsuario.buscarPeloId(id);
+    const usuario = await RepositorioDeUsuario.buscarPeloId(id);
     if (!usuario) {
       throw new HttpError(404, "Usuário não encontrado!");
     }
@@ -22,7 +22,7 @@ class ServicoDeUsuario {
     return usuario;
   }
 
-  cadastrar(nome, email, cpf, senha) {
+  async cadastrar(nome, email, cpf, senha) {
     const userSchema = z.object({
       nome: z
         .string({ required_error: "O nome é obrigatório." })
@@ -48,11 +48,11 @@ class ServicoDeUsuario {
     }
 
     const usuario = new Usuario(nome, email, cpf, senha);
-    return RepositorioDeUsuario.criar(usuario);
+    return await RepositorioDeUsuario.criar(usuario);
   }
 
-  conectar(email, senha) {
-    const usuarioEncontrado = RepositorioDeUsuario.buscarPeloEmail(email);
+  async conectar(email, senha) {
+    const usuarioEncontrado = await RepositorioDeUsuario.buscarPeloEmail(email);
     if (!usuarioEncontrado) {
       throw new HttpError(404, "Usuário não encontrado.");
     }
@@ -72,13 +72,13 @@ class ServicoDeUsuario {
     );
     // Atualizar o token do usuário
     usuarioEncontrado.token = token;
-    RepositorioDeUsuario.atualizar(usuarioEncontrado.id, { token });
+    await RepositorioDeUsuario.atualizar(usuarioEncontrado.id, { token });
 
     return token;
   }
 
-  atualizar(usuarioId, dadosNovos) {
-    const usuarioExistente = RepositorioDeUsuario.buscarPeloId(usuarioId);
+  async atualizar(usuarioId, dadosNovos) {
+    const usuarioExistente = await RepositorioDeUsuario.buscarPeloId(usuarioId);
     if (!usuarioExistente) {
       throw new HttpError(404, "Usuário não encontrado!");
     }
@@ -92,16 +92,16 @@ class ServicoDeUsuario {
       senha: senha ?? usuarioExistente.senha
     };
 
-    return RepositorioDeUsuario.atualizar(usuarioId, dadosAtualizados);
+    return await RepositorioDeUsuario.atualizar(usuarioId, dadosAtualizados);
   }
 
-  deletar(id) {
-    const usuarioExistente = RepositorioDeUsuario.buscarPeloId(id);
+  async deletar(id) {
+    const usuarioExistente = await RepositorioDeUsuario.buscarPeloId(id);
     if (!usuarioExistente) {
       throw new HttpError(404, "Usuário nao encontrado!");
     }
 
-    return RepositorioDeUsuario.deletarUmUsuario(id);
+    return await RepositorioDeUsuario.deletarUmUsuario(id);
   }
 }
 
